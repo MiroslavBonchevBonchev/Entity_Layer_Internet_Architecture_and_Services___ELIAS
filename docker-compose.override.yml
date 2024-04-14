@@ -1,0 +1,14 @@
+version: '3.4'
+
+services:
+  elias_query_service:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=51210
+      - ASPNETCORE_HTTPS_PORTS=51211
+    ports:
+      - "51210:51210"
+      - "51211:51211"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

@@ -3,11 +3,26 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Query_Service", "Query_Service\Query_Service\Query_Service.csproj", "{173092B3-4CF4-4500-BB06-115A32BE44DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Query_Service", "Query_Service\Query_Service\Query_Service.csproj", "{173092B3-4CF4-4500-BB06-115A32BE44DD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Query_Service.Client", "Query_Service\Query_Service.Client\Query_Service.Client.csproj", "{159E04E8-DE5C-45E2-AF79-7326D34C8588}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Query_Service.Client", "Query_Service\Query_Service.Client\Query_Service.Client.csproj", "{159E04E8-DE5C-45E2-AF79-7326D34C8588}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Query_Service", "Query_Service", "{ABB551C3-9559-47CA-8010-A03EE6EC072E}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9C322AA4-FA8E-4701-AA94-86F692207150}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Access", "Data_Access\Data_Access.csproj", "{8C019262-9329-422E-AF4D-923B2B2D5E03}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_support_files", "_support_files", "{F4220D66-70B4-496E-9EB4-498ED27D23CD}"
+	ProjectSection(SolutionItems) = preProject
+		Data_Access\Stored procedures\mysqldb-11-04-2024.tar.bz2 = Data_Access\Stored procedures\mysqldb-11-04-2024.tar.bz2
+		Data_Access\Stored procedures\mysqldb-11-04-2024.tar.gz = Data_Access\Stored procedures\mysqldb-11-04-2024.tar.gz
+		_support_files\mysql_authentication_schema.sql = _support_files\mysql_authentication_schema.sql
+		_support_files\volume_backup_container.sh = _support_files\volume_backup_container.sh
+		_support_files\volume_backup_direct.yml = _support_files\volume_backup_direct.yml
+		_support_files\volume_restore_container.sh = _support_files\volume_restore_container.sh
+		_support_files\volume_restore_direct.yml = _support_files\volume_restore_direct.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,6 +38,14 @@ Global
 		{159E04E8-DE5C-45E2-AF79-7326D34C8588}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{159E04E8-DE5C-45E2-AF79-7326D34C8588}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{159E04E8-DE5C-45E2-AF79-7326D34C8588}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C322AA4-FA8E-4701-AA94-86F692207150}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C322AA4-FA8E-4701-AA94-86F692207150}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C322AA4-FA8E-4701-AA94-86F692207150}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C322AA4-FA8E-4701-AA94-86F692207150}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

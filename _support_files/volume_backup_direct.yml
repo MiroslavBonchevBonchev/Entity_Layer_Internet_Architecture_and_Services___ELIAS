@@ -1,0 +1,20 @@
+version: "3.4"
+# Update
+# - volume_to_backup = elias_volume
+# - host_backup_dir
+# - ZIP_ARCHIVE
+
+volumes:
+  elias_volume:
+    external: true
+
+services:
+  go:
+    image: alpine    
+    tty: false
+    environment:
+      - ZIP_ARCHIVE=name_of_the_zip_archive
+    volumes:
+      - ./host_backup_dir:/container_backup
+      - elias_volume:/volume
+    command: sh -c "tar -cjf /container_backup/$${ZIP_ARCHIVE}.tar.bz2 -C /volume ./"
