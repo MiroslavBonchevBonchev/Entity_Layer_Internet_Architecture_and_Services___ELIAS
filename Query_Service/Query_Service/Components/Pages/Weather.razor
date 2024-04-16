@@ -5,11 +5,14 @@
 @using Data_Access.Models
 @using Query_Service.Data;
 @using Microsoft.AspNetCore.Authorization
+@using MassTransit;
+@using Data_Messages;
 
 @attribute [StreamRendering]
 @attribute [Authorize]
 
 @inject ITemperatureData   tmperature_data;
+@inject IPublishEndpoint   publish_endpoint;
 
 <PageTitle>Weather</PageTitle>
 
@@ -74,5 +77,7 @@ else
          loadLocation = $"Loaded from the cache at {DateTime.Now}";
          isCacheData = "text-danger";
       }
+
+      await publish_endpoint.Publish( new MessageTestForward { Id = new Guid(), SendTime_UTC = DateTime.UtcNow } /* , cancellation token */ );
    }
 }

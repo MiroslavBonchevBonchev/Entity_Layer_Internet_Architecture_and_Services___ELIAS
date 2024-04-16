@@ -24,6 +24,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_support_files", "_support_
 		_support_files\volume_restore_direct.yml = _support_files\volume_restore_direct.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data_Messages", "Data_Messages\Data_Messages.csproj", "{31FE26FA-137D-4942-B6BD-9BEAFE214224}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_Service", "Test_Service\Test_Service.csproj", "{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -46,6 +50,14 @@ Global
 		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C019262-9329-422E-AF4D-923B2B2D5E03}.Release|Any CPU.Build.0 = Release|Any CPU
+		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

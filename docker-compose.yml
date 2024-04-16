@@ -4,10 +4,55 @@ networks:
    elias_network:
 
 volumes:
-    elias_volume:
+    elias_volume_system:
         external: true
+    # elias_volume_mq_data:
+    #     external: true
+    # elias_volume_mq_log:
+    #     external: true
 
 services:
+  elias_qs_mysql_db:
+    image: mysql:latest
+    container_name: elias_qs_mysql_db
+    hostname: elias_qs_mysql_db
+    restart: always
+    environment:
+      - MYSQL_TCP_PORT=43306
+      - MYSQL_ROOT_PASSWORD=1234qQ1!
+    ports:
+      - 43306:43306
+    volumes:
+      - elias_volume_system:/var/lib/mysql
+    networks:
+      - elias_network
+
+  elias_cache_redis:
+    image: redis:latest
+    container_name: elias_cache_redis
+    hostname: elias_cache_redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - elias_network
+  
+  elias_message_queue_rabbit_mq:
+    image: rabbitmq:management
+    container_name: elias_message_queue_rabbit_mq
+    hostname: elias_message_queue_rabbit_mq
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    # volumes:
+    #   - elias_volume_mq_data:/var/lib/rabbitmq
+    #   - elias_volume_mq_log:/val/log/rabbitmq
+    ports:
+      - "5672:5672"
+    networks:
+      - elias_network
+
   elias_query_service:
     container_name: elias_query_service
     image: ${DOCKER_REGISTRY-}elias_query_service
@@ -20,26 +65,16 @@ services:
       - "51211:51211"
     networks:
       - elias_network
-  
-  elias_qs_mysql_db:
-    container_name: elias_qs_mysql_db
-    image: mysql:latest
-    restart: always
-    environment:
-      - MYSQL_TCP_PORT=43306
-      - MYSQL_ROOT_PASSWORD=1234qQ1!
-    ports:
-      - 43306:43306
-    volumes:
-      - elias_volume:/var/lib/mysql
-    networks:
-      - elias_network
 
-  elias_cache_redis:
-    image: redis:latest
-    container_name: elias_cache_redis
+  elias_test_service:
+    container_name: elias_test_service
+    image: ${DOCKER_REGISTRY-}elias_test_service
     restart: always
+    build:
+      context: .
+      dockerfile: Test_Service/Dockerfile
     ports:
-      - "6379:6379"
+      - "61210:61210"
+      - "61211:61211"
     networks:
       - elias_network
