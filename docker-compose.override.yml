@@ -1,26 +1,38 @@
-version: '3.4'
+version: '3.9'
 
 services:
+  elias_gateway:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=51201
+      - ASPNETCORE_HTTPS_PORTS=51202
+    ports:
+      - 51201:51201
+      - 51202:51202
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
+
   elias_query_service:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_HTTP_PORTS=51210
       - ASPNETCORE_HTTPS_PORTS=51211
     ports:
-      - "51210:51210"
-      - "51211:51211"
+      - 51210:51210
+      - 51211:51211
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro
  
-  elias_test_service:
+  elias_societal_service:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ASPNETCORE_HTTP_PORTS=61210
-      - ASPNETCORE_HTTPS_PORTS=61211
+      - ASPNETCORE_HTTP_PORTS=51220
+      - ASPNETCORE_HTTPS_PORTS=51221
     ports:
-      - "61210:61210"
-      - "61211:61211"
+      - 51220:51220
+      - 51221:51221
     volumes:
       - ${APPDATA}/Microsoft/UserSecrets:/home/app/.microsoft/usersecrets:ro
       - ${APPDATA}/ASP.NET/Https:/home/app/.aspnet/https:ro

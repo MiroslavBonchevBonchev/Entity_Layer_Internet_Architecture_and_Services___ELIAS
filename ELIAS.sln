@@ -24,9 +24,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_support_files", "_support_
 		_support_files\volume_restore_direct.yml = _support_files\volume_restore_direct.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data_Messages", "Data_Messages\Data_Messages.csproj", "{31FE26FA-137D-4942-B6BD-9BEAFE214224}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Messages", "Data_Messages\Data_Messages.csproj", "{31FE26FA-137D-4942-B6BD-9BEAFE214224}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test_Service", "Test_Service\Test_Service.csproj", "{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Societal_Service", "Societal_Service", "{B12229FB-B531-4091-B7BC-982A06D3DDE7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Societal_Service", "Societal_Service\Societal_Service\Societal_Service.csproj", "{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Search_Service", "Search_Service", "{24446A7A-D32E-410B-A001-71A2182E427D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Website_Service", "Website_Service", "{8E5823B5-8586-4717-A2BB-71B918740283}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_system", "_system", "{F3921A5B-FC36-450F-8EB6-2B42F76B7273}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ELIAS_Gateway", "_system\ELIAS_Gateway\ELIAS_Gateway.csproj", "{8DBDF263-F7E1-4EB6-B939-45CBFE09274C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,10 +64,14 @@ Global
 		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{31FE26FA-137D-4942-B6BD-9BEAFE214224}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5F445C2A-BE86-428A-8BD5-4D5A9D28AD0B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DBDF263-F7E1-4EB6-B939-45CBFE09274C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DBDF263-F7E1-4EB6-B939-45CBFE09274C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DBDF263-F7E1-4EB6-B939-45CBFE09274C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DBDF263-F7E1-4EB6-B939-45CBFE09274C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -65,6 +79,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{173092B3-4CF4-4500-BB06-115A32BE44DD} = {ABB551C3-9559-47CA-8010-A03EE6EC072E}
 		{159E04E8-DE5C-45E2-AF79-7326D34C8588} = {ABB551C3-9559-47CA-8010-A03EE6EC072E}
+		{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7} = {B12229FB-B531-4091-B7BC-982A06D3DDE7}
+		{8DBDF263-F7E1-4EB6-B939-45CBFE09274C} = {F3921A5B-FC36-450F-8EB6-2B42F76B7273}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {06372965-15D7-4D1E-B1E1-7C5978B3CE70}
