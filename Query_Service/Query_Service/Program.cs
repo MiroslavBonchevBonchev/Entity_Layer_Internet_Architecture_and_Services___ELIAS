@@ -30,12 +30,9 @@ builder.Services.AddRazorComponents()
 // Consume request properties from headers when behind gateway - step 1/2, MBB
 builder.Services.Configure< ForwardedHeadersOptions >( options =>
 {
-   options.ForwardedHeaders = ForwardedHeaders.XForwardedProto
-                              // Appears that when ForwardedHeaders.XForwardedFor is added the HttpContext.Schema stops to use the "Proto" header.
-                              //| ForwardedHeaders.XForwardedFor
-                              //| ForwardedHeaders.XForwardedHost
-                              //| ForwardedHeaders.XForwardedPrefix
-                              ;
+   options.ForwardedHeaders = ForwardedHeaders.XForwardedProto | ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedHost | ForwardedHeaders.XForwardedPrefix;
+   options.KnownNetworks.Clear();
+   options.KnownProxies.Clear();
 } );
 
 
