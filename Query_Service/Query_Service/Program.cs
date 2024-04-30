@@ -15,24 +15,40 @@ using Query_Service.Swagger;
 using Grpc.Net.Client;
 using Query_Service.Protos;
 using MassTransit;
+using Microsoft.AspNetCore.HttpOverrides;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents()
-    .AddInteractiveWebAssemblyComponents();
+                .AddInteractiveServerComponents()
+                .AddInteractiveWebAssemblyComponents();
+
+
+
+// Consume request properties from headers when behind gateway - step 1/2, MBB
+builder.Services.Configure< ForwardedHeadersOptions >( options =>
+{
+   options.ForwardedHeaders = ForwardedHeaders.XForwardedProto
+                              // Appears that when ForwardedHeaders.XForwardedFor is added the HttpContext.Schema stops to use the "Proto" header.
+                              //| ForwardedHeaders.XForwardedFor
+                              //| ForwardedHeaders.XForwardedHost
+                              //| ForwardedHeaders.XForwardedPrefix
+                              ;
+} );
+
+
 
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddScoped<IdentityUserAccessor>();
-builder.Services.AddScoped<IdentityRedirectManager>();
-builder.Services.AddScoped<AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped< IdentityUserAccessor >();
+builder.Services.AddScoped< IdentityRedirectManager >();
+builder.Services.AddScoped< AuthenticationStateProvider, PersistingRevalidatingAuthenticationStateProvider >();
 
 builder.Services.AddAuthentication( options =>
 {
    // Add other authentication providers, like social networks accounts, here somewhere.
-   options.DefaultScheme = IdentityConstants.ApplicationScheme;
+   options.DefaultScheme       = IdentityConstants.ApplicationScheme;
    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 } ).AddIdentityCookies();
 
@@ -59,11 +75,12 @@ builder.Services.AddApiVersioning( options =>
 
 
 
-// Swagger - start x 2 places, MBB
+// Swagger - start x 1/2 places, MBB
+// Todo probably want to remove swagger
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-builder.Services.AddSwaggerGen( optiuons => optiuons.OperationFilter<SwaggerDefaultValues>() );
+builder.Services.AddTransient< IConfigureOptions< SwaggerGenOptions >, ConfigureSwaggerOptions >();
+builder.Services.AddSwaggerGen( optiuons => optiuons.OperationFilter< SwaggerDefaultValues >() );
 // Swagger - end
 
 
@@ -147,6 +164,11 @@ var app = builder.Build();
 
 
 
+// Consume request properties from headers when behind gateway - step 2/2, MBB
+app.UseForwardedHeaders();
+
+
+
 // Add API Versions, MBB
 app.NewApiVersionSet()
       .HasApiVersion( 1, 0 )
@@ -162,7 +184,7 @@ if( app.Environment.IsDevelopment() )
    app.UseWebAssemblyDebugging();
    app.UseMigrationsEndPoint();
 
-   // Swagger - start x 2 places, MBB
+   // Swagger - start x 2/2 places, MBB
    app.UseSwagger();
    app.UseSwaggerUI( o =>
    {
@@ -174,17 +196,27 @@ if( app.Environment.IsDevelopment() )
       }
    } );
    // Swagger - end
+
+   app.UseDeveloperExceptionPage();
 }
 else
 {
    app.UseExceptionHandler( "/Error", createScopeForErrors: true );
+
    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
    app.UseHsts();
 }
 
 
 
-app.UseHttpsRedirection();
+
+
+bool todo_Query_Service_is_behing_gateway = true;
+if( !todo_Query_Service_is_behing_gateway )
+{
+   app.UseHttpsRedirection();
+}
+
 app.UseStaticFiles();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode()
@@ -214,7 +246,7 @@ app.MapGet( "/gprc", () => "Communication with gRPC endpoints must be made throu
 
 // Usage
 //    Console.WriteLine( "Hello, World!" );
-//    var channel = GrpcChannel.ForAddress( "https://localhost:51211/gprc");
+//    var channel = GrpcChannel.ForAddress( "https://localhost:[https port]/gprc");
 //    var client = new test_greeter.test_greeterClient( channel );
 //    var input = new test_HelloRequest { Name = "John" };
 //    var reply = await client.SayHelloAsync( input );

@@ -19,7 +19,11 @@ if( !app.Environment.IsDevelopment() )
    app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+bool todo_Societal_Service_is_behing_gateway = true;
+if( !todo_Societal_Service_is_behing_gateway )
+{
+   app.UseHttpsRedirection();
+}
 
 app.UseStaticFiles();
 app.UseAntiforgery();

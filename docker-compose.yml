@@ -66,12 +66,12 @@ services:
     ports:
       - 51201:51201
       - 51202:51202
-    networks:
-      - elias_network
     depends_on:
       - elias_qs_mysql_db
       - elias_cache_redis
       - elias_message_queue_rabbit_mq
+    networks:
+      - elias_network
 
   elias_query_service:
     image: ${DOCKER_REGISTRY-}elias_query_service
@@ -81,13 +81,10 @@ services:
     build:
       context: .
       dockerfile: Query_Service/Query_Service/Dockerfile
-    ports:
-      - 51210:51210
-      - 51211:51211
-    networks:
-      - elias_network
     depends_on:
       - elias_gateway
+    networks:
+      - elias_network
 
   elias_societal_service:
     image: ${DOCKER_REGISTRY-}elias_societal_service
@@ -97,10 +94,7 @@ services:
     build:
       context: .
       dockerfile: Societal_Service/Societal_Service/Dockerfile
-    ports:
-      - 51220:51220
-      - 51221:51221
-    networks:
-      - elias_network
     depends_on:
       - elias_query_service
+    networks:
+      - elias_network
