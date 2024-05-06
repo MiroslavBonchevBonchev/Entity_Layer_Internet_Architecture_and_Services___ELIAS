@@ -1,5 +1,3 @@
-version: '3.9'
-
 networks:
    elias_network:
       name: elias_network
@@ -56,7 +54,7 @@ services:
       - elias_network
 
   elias_gateway:
-    image: ${DOCKER_REGISTRY-}elias_gateway
+    image: miroslavbonchevbonchev/elias_gateway:latest
     container_name: elias_gateway
     hostname: elias_gateway
     restart: always
@@ -64,8 +62,8 @@ services:
       context: .
       dockerfile: _system/ELIAS_Gateway/Dockerfile
     ports:
-      - 51201:51201
-      - 51202:51202
+      - 51201:8080
+      - 51202:8081
     depends_on:
       - elias_qs_mysql_db
       - elias_cache_redis
@@ -74,7 +72,7 @@ services:
       - elias_network
 
   elias_query_service:
-    image: ${DOCKER_REGISTRY-}elias_query_service
+    image: miroslavbonchevbonchev/elias_query_service:latest
     container_name: elias_query_service
     hostname: elias_query_service
     restart: always
@@ -87,7 +85,7 @@ services:
       - elias_network
 
   elias_societal_service:
-    image: ${DOCKER_REGISTRY-}elias_societal_service
+    image: miroslavbonchevbonchev/elias_societal_service:latest
     container_name: elias_societal_service
     hostname: elias_societal_service
     restart: always

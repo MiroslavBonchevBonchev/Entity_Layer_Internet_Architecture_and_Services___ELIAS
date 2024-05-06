@@ -84,7 +84,7 @@ builder.Services.AddSwaggerGen( optiuons => optiuons.OperationFilter< SwaggerDef
 
 var connectionString = builder.Configuration.GetConnectionString("QS_UserDB_Connection") ?? throw new InvalidOperationException( "Connection string 'QS_UserDB_Connection' not found." );
 
-// todo add configuration and install selection
+// todo - add configuration and install selection for the database type
 DB_provider db_provider = DB_provider.MySQL;
 
 switch( db_provider )

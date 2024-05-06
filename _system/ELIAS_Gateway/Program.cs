@@ -26,7 +26,7 @@ if( app.Environment.IsDevelopment() )
    app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// todo app.UseHttpsRedirection();
 app.MapReverseProxy();
 
 app.Run();

@@ -10,10 +10,12 @@
     <DockerServiceName>query_service</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="build.sh" />
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
     <None Include=".dockerignore" />
+    <None Include="target-deploy-docker-compose.yml" />
   </ItemGroup>
 </Project>
