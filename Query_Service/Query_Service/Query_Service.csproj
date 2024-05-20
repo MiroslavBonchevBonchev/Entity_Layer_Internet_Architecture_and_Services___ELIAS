@@ -17,6 +17,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Data_Access\Data_Access.csproj" />
     <ProjectReference Include="..\..\Data_Messages\Data_Messages.csproj" />
+    <ProjectReference Include="..\..\Settings\Settings.csproj" />
     <ProjectReference Include="..\Query_Service.Client\Query_Service.Client.csproj" />
     <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
     <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
+using Settings;
 using Yarp.ReverseProxy.Configuration;
 
 namespace ELIAS_Gateway.Configuration
@@ -305,6 +306,17 @@ namespace ELIAS_Gateway.Configuration
          }
 
          throw new Exception( error_3 );
+      }
+
+
+      public static bool Force_HTTPS_on_ELIAS_gateway()
+      {
+         if( string.IsNullOrWhiteSpace( Get_TLS_CERT_EMAIL() ) )
+         {
+            return false;
+         }
+
+         return Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Allowed, Launch_settings.Protocol_permission.Allowed, false );
       }
    }
 }

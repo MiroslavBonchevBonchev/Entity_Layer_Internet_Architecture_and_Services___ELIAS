@@ -1,3 +1,4 @@
+using Settings;
 using Societal_Service.Components;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -22,21 +23,9 @@ if( !app.Environment.IsDevelopment() )
 
 
 // Require HTTPS conditionally, MBB.
-if( !string.IsNullOrWhiteSpace( Environment.GetEnvironmentVariable( "FORCE_HTTPS_BEHING_GATEWAY" ) ) )
+if( Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Required, Launch_settings.Protocol_permission.Banned, true ) )
 {
-   string force_https_behing_gateway = Environment.GetEnvironmentVariable( "FORCE_HTTPS_BEHING_GATEWAY" ) ?? "";
-
-   if( 0 != string.Compare( force_https_behing_gateway, "NO", true ) )
-   {
-      if( 0 == string.Compare( force_https_behing_gateway, "YES", true ) )
-      {
-         app.UseHttpsRedirection();
-      }
-      else
-      {
-         throw new Exception( "Invalid value for FORCE_HTTPS_BEHING_GATEWAY environment variable. Must be YES, NO or omitted altogether defaulting to NO." );
-      }
-   }
+   app.UseHttpsRedirection();
 }
 
 
