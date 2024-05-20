@@ -19,11 +19,27 @@ if( !app.Environment.IsDevelopment() )
    app.UseHsts();
 }
 
-bool todo_Societal_Service_is_behing_gateway = true;
-if( !todo_Societal_Service_is_behing_gateway )
+
+
+// Require HTTPS conditionally, MBB.
+if( !string.IsNullOrWhiteSpace( Environment.GetEnvironmentVariable( "FORCE_HTTPS_BEHING_GATEWAY" ) ) )
 {
-   app.UseHttpsRedirection();
+   string force_https_behing_gateway = Environment.GetEnvironmentVariable( "FORCE_HTTPS_BEHING_GATEWAY" ) ?? "";
+
+   if( 0 != string.Compare( force_https_behing_gateway, "NO", true ) )
+   {
+      if( 0 == string.Compare( force_https_behing_gateway, "YES", true ) )
+      {
+         app.UseHttpsRedirection();
+      }
+      else
+      {
+         throw new Exception( "Invalid value for FORCE_HTTPS_BEHING_GATEWAY environment variable. Must be YES, NO or omitted altogether defaulting to NO." );
+      }
+   }
 }
+
+
 
 app.UseStaticFiles();
 app.UseAntiforgery();

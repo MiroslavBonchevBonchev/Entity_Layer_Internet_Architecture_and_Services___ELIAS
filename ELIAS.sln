@@ -33,6 +33,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Search_Service", "Search_Service", "{24446A7A-D32E-410B-A001-71A2182E427D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Website_Service", "Website_Service", "{8E5823B5-8586-4717-A2BB-71B918740283}"
+	ProjectSection(SolutionItems) = preProject
+		Societal_Service\Societal_Service\Program.cs = Societal_Service\Societal_Service\Program.cs
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_system", "_system", "{F3921A5B-FC36-450F-8EB6-2B42F76B7273}"
 EndProject

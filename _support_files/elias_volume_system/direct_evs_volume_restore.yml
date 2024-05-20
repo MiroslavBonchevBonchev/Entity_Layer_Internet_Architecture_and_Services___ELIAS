@@ -21,4 +21,4 @@ services:
     volumes:
       - ./host_backup_dir:/container_backup_dir
       - elias_volume_system:/volume
-    command: sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xvf /container_backup_dir/$${ZIP_ARCHIVE}"
+    command: sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xvzf /container_backup_dir/$${ZIP_ARCHIVE}"
