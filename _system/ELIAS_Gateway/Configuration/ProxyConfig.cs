@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Primitives;
+using Org.BouncyCastle.Crypto.Prng;
 using Settings;
 using Yarp.ReverseProxy.Configuration;
 
@@ -32,13 +34,22 @@ namespace ELIAS_Gateway.Configuration
 
    public class Proxy_Config
    {
-      private readonly static string query   = "query";
+      private readonly static string query = "query";
+      private readonly static ushort query_service_default_port = 8080;
 
-      private readonly static string error_1 = "Invalid ELIAS_SERVICES environment variable. Expecting: [service_name - alphanumeric and _]:[port], ..., [service_name - alphanumeric and _]:[port].";
-      private readonly static string error_2 = "Invalid ELIAS_DOMAIN environment variable. Expecting: domain name, e.g. domain or domain.tld.";
-      private readonly static string error_3 = "Invalid TLS_CERT_EMAIL environment variable. A valid email address is expected, or 'none' when HTTPS protocol cannot be used.";
-      private readonly static string error_4 = "Invalid DOW3_TO_SERVICE environment variable. The service name {0} requested to map to the domain and WWW. sub-domain is unknown or cannot be mapped to them.";
-      private readonly static string error_5 = "Invalid SERVICE_ALIAS environment variable. The SERVICE_ALIAS parameter can take values ON, OFF or be omitted defaulting to OFF. When SERVICE_ALIAS = ON, services can be accessed as [service].domain.tld in addition to the standard [service].elias.domain.tld.";
+      private readonly static string ELIAS_DOMAIN = "ELIAS_DOMAIN";
+      private readonly static string SERVICE_2_ED = "SERVICE_2_ED";
+      private readonly static string SERVICE_2_W3 = "SERVICE_2_W3";
+      private readonly static string SERVICE_2_SD = "SERVICE_2_SD";
+      private readonly static string TLSCERT_MAIL = "TLSCERT_MAIL";
+      private readonly static string ELIAS_SERVICES = "ELIAS_SERVICES";
+      private readonly static string GATEWAY_IN_HTTPS_PORT = "ASPNETCORE_HTTPS_PORTS";
+
+      private readonly static string error_1 = "Invalid {0} environment variable. Expecting: [service_name - alphanumeric and _]:[port], ..., [service_name - alphanumeric and _]:[port].";
+      private readonly static string error_2 = "Invalid {0} environment variable. Expecting: domain name, e.g. domain or domain.tld.";
+      private readonly static string error_3 = "Invalid {0} environment variable. The service name {1} requested to map is unknown or cannot be mapped.";
+      private readonly static string error_4 = "Invalid {0} environment variable. The parameter can take values ON or OFF. When ON, services can be accessed as [service].domain.tld in addition to the standard [service].elias.domain.tld.";
+      private readonly static string error_5 = "Invalid {0} environment variable. A valid email address is expected, or '-' when Let's Encrypt certificate is not required.";
 
       public static IReadOnlyList< RouteConfig > Get_routes()
       {
@@ -47,40 +58,38 @@ namespace ELIAS_Gateway.Configuration
 
 
          // Get the domain.
-         string? domain = Environment.GetEnvironmentVariable( "ELIAS_DOMAIN" );
+         string? domain = Environment.GetEnvironmentVariable( ELIAS_DOMAIN );
 
          if( string.IsNullOrWhiteSpace( domain ) )
          {
-            throw new Exception( error_2 );
+            throw new Exception( string.Format( error_2, ELIAS_DOMAIN ) );
          }
 
 
          // Get the additional service mapping request.
-         bool service_dot_domain_alias = ( Environment.GetEnvironmentVariable( "SERVICE_ALIAS" ) ?? "" ).ToUpper() switch
-         {
-            "ON" => true,
-            "OFF" => false,
-            "" => false,
-            _ => throw new Exception( error_5 ),
-         };
-
+         bool service_to_sub_domain = Get_service_to_sub_domain_status();
 
          var services = Get_services();
-         Get_the_domain_mapped_service( services, out string dow3_mapped_service );
+         Get_the_domain_mapped_service( services, SERVICE_2_ED, out string ed_mapped_service );
+         Get_the_domain_mapped_service( services, SERVICE_2_W3, out string w3_mapped_service );
 
 
          foreach( var service in services )
          {
             var addresses = new List< string >( [ $"{service.Name}.elias.{domain}" ] );
 
-            if( service_dot_domain_alias)
+            if( service_to_sub_domain)
             {
-               addresses.Add( 0 == string.Compare( service.Name, query, true ) ? $"elias.{domain}" : $"{service.Name}.{domain}" );
+               Add_direct_sub_domain_access( service, domain, ref addresses );
             }
 
-            if( 0 == string.Compare( service.Name, dow3_mapped_service, true ) )
+            if( 0 == string.Compare( service.Name, ed_mapped_service, true ) )
             {
                addresses.Add( domain );
+            }
+
+            if( 0 == string.Compare( service.Name, w3_mapped_service, true ) )
+            {
                addresses.Add( $"www.{domain}" );
             }
 
@@ -106,7 +115,7 @@ namespace ELIAS_Gateway.Configuration
 
          foreach( var service in Get_services() )
          {
-            clusters.Add(  new ClusterConfig
+            clusters.Add( new ClusterConfig
             {
                ClusterId = $"cluster_{service.Name}",
                Destinations = new Dictionary< string, DestinationConfig >
@@ -122,11 +131,11 @@ namespace ELIAS_Gateway.Configuration
       public static IReadOnlyList< string > Get_domains_for_TLS()
       {
          // Get the domain.
-         string? domain = Environment.GetEnvironmentVariable( "ELIAS_DOMAIN" );
+         string? domain = Environment.GetEnvironmentVariable( ELIAS_DOMAIN );
 
          if( string.IsNullOrWhiteSpace( domain ) )
          {
-            throw new Exception( error_2 );
+            throw new Exception( string.Format( error_2, ELIAS_DOMAIN ) );
          }
 
 
@@ -135,40 +144,68 @@ namespace ELIAS_Gateway.Configuration
          
          
          // See if the domain is mapped to a service.
-         if( Get_the_domain_mapped_service( services, out _ ) )
+         if( Get_the_domain_mapped_service( services, SERVICE_2_ED, out _ ) )
          {
             domains.Add( domain );
+         }
+
+         if( Get_the_domain_mapped_service( services, SERVICE_2_W3, out _ ) )
+         {
             domains.Add( $"www.{domain}" );
          }
 
+         bool service_to_sub_domain = Get_service_to_sub_domain_status();
 
          foreach( var service in services )
          {
             domains.Add( $"{service.Name}.elias.{domain}" );
-            domains.Add( 0 == string.Compare( service.Name, query, true ) ? $"elias.{domain}" : $"{service.Name}.{domain}" );
+
+            if( service_to_sub_domain)
+            {
+               Add_direct_sub_domain_access( service, domain, ref domains );
+            }
          }
 
          return domains;
       }
 
-      private static bool Get_the_domain_mapped_service( HashSet< ELIAS_Service > services, out string dow3_mapped_service )
+      public static void Add_direct_sub_domain_access( ELIAS_Service service, string domain, ref List< string > addresses )
       {
-         dow3_mapped_service = Environment.GetEnvironmentVariable( "DOW3_TO_SERVICE" ) ?? "";
-
-         if( string.IsNullOrWhiteSpace( dow3_mapped_service ) )
+         if( 0 == string.Compare( service.Name, query, true ) )
          {
+            addresses.Add( $"elias.{domain}" );
+         }
+         else
+         {
+            addresses.Add( $"{service.Name}.{domain}" );
+         }
+      }
+
+      private static bool Get_the_domain_mapped_service( HashSet< ELIAS_Service > services, string service_mapping_name, out string mapped_service )
+      {
+         mapped_service = Environment.GetEnvironmentVariable( service_mapping_name ) ?? "";
+
+         if( string.IsNullOrWhiteSpace( mapped_service ) )
+         {
+            return false;
+         }
+
+         if( 0 == string.Compare( mapped_service, "-", false ) )
+         {
+            mapped_service = "";
+
             return false;
          }
 
          foreach( var service in services )
          {
-            if( 0 == string.Compare( service.Name, dow3_mapped_service, true ) )
+            if( 0 == string.Compare( service.Name, mapped_service, true ) )
             {
                // A service is mapped to the domain.
-               if( 0 == string.Compare( dow3_mapped_service, query, true ) )
+               if( 0 == string.Compare( mapped_service, query, true ) )
                {
                   // The query service cannot be mapped to the domain.
-                  throw new Exception( string.Format( error_4, dow3_mapped_service ) );
+                  throw new Exception( string.Format( error_3, service_mapping_name, mapped_service ) );
                }
 
                return true;
@@ -176,17 +213,30 @@ namespace ELIAS_Gateway.Configuration
          }
 
          // Could not find the mapped service - a spelling error perhaps???
-         throw new Exception( string.Format( error_4, dow3_mapped_service ) );
+         throw new Exception( string.Format( error_3, service_mapping_name, mapped_service ) );
+      }
+
+      private static bool Get_service_to_sub_domain_status()
+      {
+         string service_to_sub_domain_status = Environment.GetEnvironmentVariable( SERVICE_2_SD ) ?? "";
+
+         switch( service_to_sub_domain_status.ToUpper() )
+         {
+         case "ON":  return true;
+         case "OFF": return false;
+         };
+
+         throw new Exception( string.Format( error_4, SERVICE_2_SD ) );
       }
 
       private static HashSet< ELIAS_Service > Get_services()
       {
-         string? service_raw = Environment.GetEnvironmentVariable( "ELIAS_SERVICES" );
+         string? service_raw = Environment.GetEnvironmentVariable( ELIAS_SERVICES );
 
 
          if( string.IsNullOrWhiteSpace( service_raw ) )
          {
-            throw new Exception( error_1 );
+            throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
          }
 
 
@@ -200,25 +250,25 @@ namespace ELIAS_Gateway.Configuration
 
             if( 2 != service.Length )
             {
-               throw new Exception( error_1 );
+               throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
             }
 
 
             if( string.IsNullOrWhiteSpace( service[0] ) )
             {
-               throw new Exception( error_1 );
+               throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
             }
 
 
             if( !service[0].All( c => char.IsAsciiLetterOrDigit( c ) || c == '_' ) )
             {
-               throw new Exception( error_1 );
+               throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
             }
 
 
             if( !ushort.TryParse( service[1], out var port ) )
             {
-               throw new Exception( error_1 );
+               throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
             }
 
 
@@ -231,13 +281,13 @@ namespace ELIAS_Gateway.Configuration
 
          if( !has_query )
          {
-            services.Add( new ELIAS_Service( query, 80 ));
+            services.Add( new ELIAS_Service( query, query_service_default_port ));
          }
 
 
          if( 1 > services.Count )
          {
-            throw new Exception( error_1 );
+            throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
          }
 
 
@@ -245,7 +295,7 @@ namespace ELIAS_Gateway.Configuration
 
          if( services_ready.Count != services.Count )
          {
-            throw new Exception( error_1 );
+            throw new Exception( string.Format( error_1, ELIAS_SERVICES ) );
          }
 
 
@@ -254,30 +304,33 @@ namespace ELIAS_Gateway.Configuration
 
       /// <summary>
       ///  Gets the email address associated with TLS certificates acquired from Let's Encrypt.
-      ///  Environment parameter: TLS_CERT_EMAIL
+      ///  Environment parameter: TLSCERT_MAIL
       ///  Status: Required
       ///  Values: [a valid email address] or "none"
-      ///  Set TLS_CERT_EMAIL: "[a valid email]" - to requite HTTPS protocol when accessing the domain gateway from the outside world.
-      ///  Set TLS_CERT_EMAIL: "none"            - to enable use of HTTP protocol when accessing the domain gateway from the outside world.
+      ///  Set TLSCERT_MAIL: "[a valid email]" - to requite HTTPS protocol when accessing the domain gateway from the outside world.
+      ///  Set TLSCERT_MAIL: "none"            - to enable use of HTTP protocol when accessing the domain gateway from the outside world.
       /// </summary>
       /// <returns>The provided email address, or an empty string.</returns>
       /// <exception cref="Exception">Exception( [description] )</exception>
       /// <remarks>This parameter does not relate to the use of HTTP/HTTPS protocol between the domain gateway and the services on the internal ELIAS services network.</remarks>
       public static string Get_TLS_CERT_EMAIL()
       {
-         string email = Environment.GetEnvironmentVariable( "TLS_CERT_EMAIL" ) ?? "";
-
-         if( string.IsNullOrWhiteSpace( email ) )
-         {
-            throw new Exception( error_3 );
-         }
-
-
-         if( 0 == string.Compare( email, "none", true ) )
+         if( !ushort.TryParse( Environment.GetEnvironmentVariable( GATEWAY_IN_HTTPS_PORT ), out _ ) )
          {
             return "";
          }
+         
+         string email = Environment.GetEnvironmentVariable( TLSCERT_MAIL ) ?? "";
 
+         if( string.IsNullOrWhiteSpace( email ) )
+         {
+            throw new Exception( string.Format( error_5, TLSCERT_MAIL ) );
+         }
+
+         if( 0 == string.Compare( email, "-", true ) )
+         {
+            return "";
+         }
 
          try
          {
@@ -305,17 +358,12 @@ namespace ELIAS_Gateway.Configuration
          {
          }
 
-         throw new Exception( error_3 );
+         throw new Exception( string.Format( error_5, TLSCERT_MAIL ) );
       }
 
 
       public static bool Force_HTTPS_on_ELIAS_gateway()
       {
-         if( string.IsNullOrWhiteSpace( Get_TLS_CERT_EMAIL() ) )
-         {
-            return false;
-         }
-
          return Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Allowed, Launch_settings.Protocol_permission.Allowed, false );
       }
    }

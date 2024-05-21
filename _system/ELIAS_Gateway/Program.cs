@@ -54,7 +54,7 @@ if( app.Environment.IsDevelopment() )
 {
    foreach( var route in Proxy_Config.Get_routes() )
    {
-      Console.WriteLine( $"RouteId: {route.RouteId} - ClusterId : {route.ClusterId} - Addresses: {string.Join( ", ", null != route.Match ? route.Match.Hosts : new List< string >() )}"  );
+      Console.WriteLine( $"RouteId: {route.RouteId} - ClusterId : {route.ClusterId} - Addresses: {string.Join( ", ", null != route.Match && null != route.Match.Hosts ? route.Match.Hosts : new List< string >() )}"  );
    }
    
    foreach( var cluster in Proxy_Config.Get_clusters() )
@@ -62,9 +62,9 @@ if( app.Environment.IsDevelopment() )
       Console.WriteLine( $"ClusterId : {cluster.ClusterId} - Addresses: {(null != cluster.Destinations && 0 != cluster.Destinations.Count ? cluster.Destinations[cluster.Destinations.Keys.First()].Address : "") }" );
    }
 
-   foreach( var domains in Proxy_Config.Get_domains_for_TLS() )
+   foreach( var domain in Proxy_Config.Get_domains_for_TLS() )
    {
-      Console.WriteLine( $"TLS Domains : {string.Join( ", ", domains )}"  );
+      Console.WriteLine( $"TLS Domain : {domain}"  );
    }
 
    app.UseSwagger();

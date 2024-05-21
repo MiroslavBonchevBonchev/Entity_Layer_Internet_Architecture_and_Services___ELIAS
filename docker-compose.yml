@@ -110,10 +110,11 @@ services:
     networks:
       - elias_network
     environment:
-      ASPNETCORE_HTTP_PORTS: 80
-      ASPNETCORE_HTTPS_PORTS: 443
-      ELIAS_SERVICES: "query:8080, societal:8080"           # Required - list all services in the format service:port. The query service is optional, as it is implied with default port 80.
-      ELIAS_DOMAIN: "m0.com"                                # Required - provide the domain for this installation
-      TLS_CERT_EMAIL: "none"                                # Required - use "none" when HTTPS cannot be implemented for some reason.
-      DOW3_TO_SERVICE: "societal"                           # Optional - defaults to none - maps the appointed service to domain.tld and www.domain.tld, and requests certificate for them as well. So if web is mapped, then web.elias.domain.tld, web.domain.tld, domain.tld and www.domain.tld will point to the same web service. If omitted, the TLS certificate will not be requesting domain.tld and www.domain.tld certification.
-      SERVICE_ALIAS: "ON"                                   # Optional - defaults to OFF  - When ON enables access to services omitting the ELIAS name-space sub-domain e.g. service.domain.tld in addition to service.elias.domain.tld. When OFF or omitted, access to services is only via service.elias.domain.tld.
+      ASPNETCORE_HTTP_PORTS: 80                             # Enable transport over HTTP. Comment out when not needed or allowed.
+      ASPNETCORE_HTTPS_PORTS: 443                           # Enable transport over HTTPS. When HTTP is not enabled, HTTPS becomes mandatory.
+      ELIAS_SERVICES: "query:8080, societal:8080"           # List all services in the format service:port. The query service is optional, as it is implied with default port 8080.
+      ELIAS_DOMAIN: "${ELIAS_DOMAIN}"                       # Domain - provide the domain.tld for this ELIAS installation.
+      SERVICE_2_ED: "${SERVICE_2_ED}"                       # SERVICE TO ELIAS DOMAIN - maps domain.tld to the appointed service, and requests certificate for it as well. So if service "web" is mapped, then domain.tld will point to the same "web" service. Use "-" for none.
+      SERVICE_2_W3: "${SERVICE_2_W3}"                       # SERVICE TO www. ELIAS DOMAIN - maps 'www.domain.tld to the appointed service, and requests certificate for it as well. So if service "web" is mapped, then web.elias.domain.tld will point to the same "web" service. Use "-" for none.
+      SERVICE_2_SD: "${SERVICE_2_SD}"                       # SERVICE TO sub DOMAIN. Can be "ON" or "OFF". When "ON", enables access to services omitting the ELIAS sub-domain name-space i.e. enables access to services via [service].domain.tld in addition to service.elias.domain.tld.
+      TLSCERT_MAIL: "${TLSCERT_MAIL}"                       # Provide a valid email address to fetch a Let's Encrypt certificate. Use "-" when Let's Encrypt certificate should not be acquired. TLSCERT_MAIL is ignored when HTTPS is disabled.
