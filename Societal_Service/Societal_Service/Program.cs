@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
+using Microsoft.AspNetCore.DataProtection;
 using Settings;
 using Societal_Service.Components;
 
@@ -9,6 +12,19 @@ builder.Services.AddRazorComponents()
 
 // Enable Controllers, MBB
 builder.Services.AddControllers();
+
+
+
+// Prevent WARNING: Storing keys in a directory '/home/app/.aspnet/DataProtection-Keys' that may not be persisted outside of the container. MBB
+builder.Services.AddDataProtection()
+   .PersistKeysToFileSystem( new DirectoryInfo( $"/home/app/data_protection_keys" ) )
+   .UseCryptographicAlgorithms( new AuthenticatedEncryptorConfiguration()
+   {
+      EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+      ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+   } );
+
+
 
 var app = builder.Build();
 
@@ -22,7 +38,7 @@ if( !app.Environment.IsDevelopment() )
 
 
 
-// Require HTTPS conditionally, MBB.
+// This service works with HTTP behind reverse proxy, MBB.
 if( Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Required, Launch_settings.Protocol_permission.Banned, true ) )
 {
    app.UseHttpsRedirection();

@@ -1,8 +1,12 @@
 using ELIAS_Gateway.Configuration;
+using LettuceEncrypt;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
+using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Settings;
 using Yarp.ReverseProxy.Transforms;
+using Microsoft.AspNetCore.DataProtection;
 
 
 
@@ -36,15 +40,31 @@ string lets_encrypt_certificate_email = Proxy_Config.Get_TLS_CERT_EMAIL();
 
 if( !string.IsNullOrWhiteSpace( lets_encrypt_certificate_email ) )
 {
-   builder.Services.AddLettuceEncrypt();
-
-   builder.Services.AddLettuceEncrypt( context =>
-   {
+   builder.Services.AddLettuceEncrypt( context => {
       context.AcceptTermsOfService = true;
       context.EmailAddress = lets_encrypt_certificate_email;
-      context.DomainNames  = [.. Proxy_Config.Get_domains_for_TLS()];
-   } );
+      context.DomainNames  = [.. Proxy_Config.Get_domains_for_TLS()]; }
+
+      // 1. In order for the PersistDataToDirectory( ... ) to work, the Dockerfile requires creating of a /home/app/https_certificates directory:
+      //    FROM base AS final                      # - already there
+      //    WORKDIR /home/app/https_certificates    # - required line, can be in /app/https_certificates as well. Note that direct deployment to linux does not need any additional work (like this line).
+      //    WORKDIR /app                            # - already there
+      // 2. To persist the certificates and other app data, add to the docker-compose.yml
+      //    volumes:
+      //       - 
+   ).PersistDataToDirectory( new DirectoryInfo( "/home/app/https_certificates" ), "Password123" );
 }
+
+
+
+// Prevent WARNING: Storing keys in a directory '/home/app/.aspnet/DataProtection-Keys' that may not be persisted outside of the container. MBB
+builder.Services.AddDataProtection()
+   .PersistKeysToFileSystem( new DirectoryInfo( $"/home/app/data_protection_keys" ) )
+   .UseCryptographicAlgorithms( new AuthenticatedEncryptorConfiguration()
+   {
+      EncryptionAlgorithm = EncryptionAlgorithm.AES_256_CBC,
+      ValidationAlgorithm = ValidationAlgorithm.HMACSHA256
+   } );
 
 
 

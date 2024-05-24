@@ -97,6 +97,6 @@ fi
 
 
 
-build_project "ELIAS_Gateway" $VERSION "_system/ELIAS_Gateway"
-build_project "ELIAS_Query_Service" $VERSION "Query_Service/Query_Service"
-build_project "ELIAS_Societal_Service" $VERSION "Societal_Service/Societal_Service"
+build_project "elias_system_gateway" $VERSION "_system/ELIAS_Gateway"
+build_project "elias_service_query" $VERSION "Query_Service/Query_Service"
+build_project "elias_service_societal" $VERSION "Societal_Service/Societal_Service"

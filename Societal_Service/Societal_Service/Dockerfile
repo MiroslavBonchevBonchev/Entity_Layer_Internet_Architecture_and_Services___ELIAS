@@ -18,6 +18,8 @@ ARG BUILD_CONFIGURATION=Release
 RUN dotnet publish "./Societal_Service.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 FROM base AS final
+WORKDIR /home/app/https_certificates
+WORKDIR /home/app/data_protection_keys
 WORKDIR /app
 COPY --from=publish /app/publish .
 ENTRYPOINT ["dotnet", "Societal_Service.dll"]

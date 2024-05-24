@@ -1,0 +1,22 @@
+# Update
+# - volume_to_backup - REQUIRED - replace with the volume to backup
+# - host_backup_dir  - OPTIONAL - replace with the directory for the backup
+# - ZIP_ARCHIVE      - OPTIONAL - replace with the filename for the backup
+# The final archive will be: [host_backup_dir]/[ZIP_ARCHIVE].tar.gz, i.e. 
+# ASIS the final archive will be: ./host_backup_dir/name_of_the_zip_archive.tar.gz.
+# Note that the backup is gz, as on some systems bz2 may not work properly.
+
+volumes:
+  volume_to_backup:
+    external: true
+
+services:
+  go:
+    image: alpine    
+    tty: false
+    environment:
+      - ZIP_ARCHIVE=name_of_the_zip_archive
+    volumes:
+      - ./host_backup_dir:/container_backup
+      - volume_to_backup:/volume
+    command: sh -c "tar -czvf /container_backup/$${ZIP_ARCHIVE}.tar.gz -C /volume ./"

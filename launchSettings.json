@@ -4,9 +4,7 @@
       "commandName": "DockerCompose",
       "commandVersion": "1.0",
       "serviceActions": {
-        "query_service": "StartDebugging",
-        "gateway": "StartDebugging",
-        "elias_gateway": "StartDebugging"
+         "query_service": "StartDebugging"
       }
     }
   }

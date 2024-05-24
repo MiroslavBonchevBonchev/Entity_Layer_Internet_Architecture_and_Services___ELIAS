@@ -13,7 +13,7 @@ namespace ELIAS_Gateway.Configuration
    public sealed class ELIAS_Service( string _name, ushort _port ) : IEqualityComparer< ELIAS_Service >
    {
       public string Name { get; init; } = _name;
-      public string Host { get; init; } = $"elias_{_name}_service";
+      public string Host { get; init; } = $"elias_service_{_name}";
       public ushort Port { get; init; } = _port;
 
       public bool Equals( ELIAS_Service? x, ELIAS_Service? y )
@@ -50,6 +50,31 @@ namespace ELIAS_Gateway.Configuration
       private readonly static string error_3 = "Invalid {0} environment variable. The service name {1} requested to map is unknown or cannot be mapped.";
       private readonly static string error_4 = "Invalid {0} environment variable. The parameter can take values ON or OFF. When ON, services can be accessed as [service].domain.tld in addition to the standard [service].elias.domain.tld.";
       private readonly static string error_5 = "Invalid {0} environment variable. A valid email address is expected, or '-' when Let's Encrypt certificate is not required.";
+
+      // YARP Configuration
+      // ==================
+      // "ReverseProxy": {
+      //    "Routes": {
+      //       "route_query": {
+      //          "ClusterId": "cluster_query",
+      //          "Match": {
+      //             "Hosts": [ "query.elias.m0.com", "elias.m0.com" ],
+      //             "Path": "{**catch-all}"
+      //          }
+      //       },
+      //       "route_societal": {
+      //          "ClusterId": "cluster_societal",
+      //          "Match": {
+      //             "Hosts": [ "societal.elias.m0.com", "societal.m0.com" m ],
+      //             "Path": "{**catch-all}"
+      //          }
+      //       }
+      //    },
+      //    "Clusters": {
+      //       "cluster_query": { "Destinations": { "destination1": { "Address": "http://elias_service_query:[port]" } } },
+      //       "cluster_societal": { "Destinations": { "destination1": { "Address": "http://elias_service_societal:[port]" } } }
+      //    }
+      // }
 
       public static IReadOnlyList< RouteConfig > Get_routes()
       {
@@ -110,7 +135,7 @@ namespace ELIAS_Gateway.Configuration
 
       public static IReadOnlyList< ClusterConfig > Get_clusters()
       {
-         // cluster_[service]: { "Destinations": { "destination1": { "Address": "http://elias_query_service:[port]" } }
+         // cluster_[service]: { "Destinations": { "destination1": { "Address": "http://elias_service_query:[port]" } }
          var clusters = new List< ClusterConfig >();
 
          foreach( var service in Get_services() )

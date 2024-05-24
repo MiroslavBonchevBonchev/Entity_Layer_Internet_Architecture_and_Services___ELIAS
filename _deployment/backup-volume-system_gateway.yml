@@ -1,0 +1,25 @@
+# Update
+# - volume_to_backup - REQUIRED - replace with the volume to backup
+# - host_backup_dir  - OPTIONAL - replace with the directory for the backup
+# - ZIP_ARCHIVE      - OPTIONAL - replace with the filename for the backup
+# The final archive will be: [host_backup_dir]/[ZIP_ARCHIVE].tar.gz, i.e. 
+# ASIS the final archive will be: ./host_backup_dir/elias_volume_system_gateway.tar.gz.
+# Note that the backup is gz, as on some systems bz2 may not work properly.
+#
+# CALL
+# docker compose -f backup-volume-system_gateway.yml run --rm go
+
+volumes:
+  elias_volume_system_gateway:
+    external: true
+
+services:
+  go:
+    image: alpine    
+    tty: false
+    environment:
+      - ZIP_ARCHIVE=elias_volume_system_gateway
+    volumes:
+      - ./host_backup_dir:/container_backup_dir
+      - elias_volume_system_gateway:/volume
+    command: sh -c "tar -czvf /container_backup_dir/$${ZIP_ARCHIVE}.tar.gz -C /volume ./"
