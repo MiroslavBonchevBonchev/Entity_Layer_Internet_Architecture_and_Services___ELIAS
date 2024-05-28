@@ -4,24 +4,24 @@ networks:
       driver: bridge
 
 volumes:
-   elias_volume_system_database:
+   elias_volume___system_database:
       external: true
-   elias_volume_system_gateway:
-      external: true
-   elias_volume_service_query:
-      external: true
-   elias_volume_service_societal:
-      external: true
-   # elias_volume_system_mq_data:
+   # elias_volume___system_mq_data:
    #    external: true
-   # elias_volume_system_mq_log:
+   # elias_volume___system_mq_log:
    #    external: true
+   elias_volume___system_core:
+      external: true
+   elias_volume___system_gateway:
+      external: true
+   elias_volume___service_societal:
+      external: true
 
 services:
-   elias_system_database:
+   elias_driver___system_database:
       image: mysql:8.4.0-oraclelinux8
-      container_name: elias_system_database
-      hostname: elias_system_database
+      container_name: elias_driver___system_database
+      hostname: elias_driver___system_database
       restart: always
       environment:
          - MYSQL_TCP_PORT=3306
@@ -29,31 +29,31 @@ services:
       ports:
          - 43306:3306
       volumes:
-         - elias_volume_system_database:/var/lib/mysql
+         - elias_volume___system_database:/var/lib/mysql
       networks:
          - elias_network
 
-   elias_system_cache:
+   elias_driver___system_cache:
       image: redis:latest
-      container_name: elias_system_cache
-      hostname: elias_system_cache
+      container_name: elias_driver___system_cache
+      hostname: elias_driver___system_cache
       restart: always
       ports:
          - 6379:6379
       networks:
          - elias_network
   
-   elias_system_message_queue:
+   elias_driver___system_message_queue:
       image: rabbitmq:management
-      container_name: elias_system_message_queue
-      hostname: elias_system_message_queue
+      container_name: elias_driver___system_message_queue
+      hostname: elias_driver___system_message_queue
       restart: always
       environment:
          RABBITMQ_DEFAULT_USER: guest
          RABBITMQ_DEFAULT_PASS: guest
       # volumes:
-      #    - elias_volume_system_mq_data:/var/lib/rabbitmq
-      #    - elias_volume_system_mq_log:/val/log/rabbitmq
+      #    - elias_volume___system_mq_data:/var/lib/rabbitmq
+      #    - elias_volume___system_mq_log:/val/log/rabbitmq
       ports:
          - 5672:5672
       networks:
@@ -62,71 +62,71 @@ services:
 
 
    # Define the installed services.
-   elias_service_query:
-      image: miroslavbonchevbonchev/elias_service_query:latest
-      container_name: elias_service_query
-      hostname: elias_service_query
+   elias_system___core:
+      image: miroslavbonchevbonchev/elias_system_core:latest
+      container_name: elias_system___core
+      hostname: elias_system___core
       restart: always
       build:
          context: .
-         dockerfile: Query_Service/Query_Service/Dockerfile
+         dockerfile: _system/ELIAS_Core/ELIAS_Core/Dockerfile
       volumes:
-         - elias_volume_service_query:/home/app
+         - elias_volume___system_core:/home/app
       ports:
          - 8080
       depends_on:
-         - elias_system_database
-         - elias_system_cache
-         - elias_system_message_queue
+         - elias_driver___system_database
+         - elias_driver___system_cache
+         - elias_driver___system_message_queue
       networks:
          - elias_network
       environment:
          ASPNETCORE_HTTP_PORTS: 8080
 
-   elias_service_societal:
+   elias_service___societal:
       image: miroslavbonchevbonchev/elias_service_societal:latest
-      container_name: elias_service_societal
-      hostname: elias_service_societal
+      container_name: elias_service___societal
+      hostname: elias_service___societal
       restart: always
       build:
          context: .
          dockerfile: Societal_Service/Societal_Service/Dockerfile
       volumes:
-         - elias_volume_service_societal:/home/app
+         - elias_volume___service_societal:/home/app
       ports:
          - 8080
       depends_on:
-         - elias_service_query
+         - elias_system___core
       networks:
          - elias_network
       environment:
          ASPNETCORE_HTTP_PORTS: 8080
 
-   elias_system_gateway:
+   elias_system___gateway:
       image: miroslavbonchevbonchev/elias_system_gateway:latest
-      container_name: elias_system_gateway
-      hostname: elias_system_gateway
+      container_name: elias_system___gateway
+      hostname: elias_system___gateway
       restart: always
       build:
          context: .
          dockerfile: _system/ELIAS_Gateway/Dockerfile
       volumes:
-         - elias_volume_system_gateway:/home/app
+         - elias_volume___system_gateway:/home/app
       ports:
          - 51201:80
          - 51202:443
       depends_on:
-         - elias_service_query
-         - elias_service_societal
-         # - elias_web_service
+         - elias_service___societal
+         # - elias_service___web
       networks:
          - elias_network
       environment:
-         ASPNETCORE_HTTP_PORTS: 80                             # Enable transport over HTTP. Comment out when not needed or allowed.
-         ASPNETCORE_HTTPS_PORTS: 443                           # Enable transport over HTTPS. When HTTP is not enabled, HTTPS becomes mandatory.
-         ELIAS_SERVICES: "query:8080, societal:8080"           # List all services in the format service:port. The query service is optional, as it is implied with default port 8080.
-         ELIAS_DOMAIN: "${ELIAS_DOMAIN}"                       # Domain - provide the domain.tld for this ELIAS installation.
-         SERVICE_2_ED: "${SERVICE_2_ED}"                       # SERVICE TO ELIAS DOMAIN - maps domain.tld to the appointed service, and requests certificate for it as well. So if service "web" is mapped, then domain.tld will point to the same "web" service. Use "-" for none.
-         SERVICE_2_W3: "${SERVICE_2_W3}"                       # SERVICE TO www. ELIAS DOMAIN - maps 'www.domain.tld to the appointed service, and requests certificate for it as well. So if service "web" is mapped, then web.elias.domain.tld will point to the same "web" service. Use "-" for none.
-         SERVICE_2_SD: "${SERVICE_2_SD}"                       # SERVICE TO sub DOMAIN. Can be "ON" or "OFF". When "ON", enables access to services omitting the ELIAS sub-domain name-space i.e. enables access to services via [service].domain.tld in addition to service.elias.domain.tld.
-         TLSCERT_MAIL: "${TLSCERT_MAIL}"                       # Provide a valid email address to fetch a Let's Encrypt certificate. Use "-" when Let's Encrypt certificate should not be acquired. TLSCERT_MAIL is ignored when HTTPS is disabled.
+         ASPNETCORE_HTTP_PORTS: 80                          # Enable transport over HTTP. Comment out when not needed or allowed.
+         ASPNETCORE_HTTPS_PORTS: 443                        # Enable transport over HTTPS. When HTTP is not enabled, HTTPS becomes mandatory, and GATEWAY_HTTPS_REDIRECT is ignored.
+         HTTPS_REDIRECT: "${GATEWAY_HTTPS_REDIRECT}"        # Enforce HTTPS communications when set to "ON". Otherwise set to "OFF". A valid ASPNETCORE_HTTPS_PORTS must be provided when ON. Must be set when ASPNETCORE_HTTPS_PORTS is set, otherwise HTTPS_REDIRECT can be omitted.
+         ELIAS_SERVICES: "societal:8080"                    # List all services in the format service:port. The keyword "elias" is reserved to refer to the ELIAS SYSTEM, and is required only when it is not running on port 8080, e.g. elias:8081.
+         ELIAS_DOMAIN: "${ELIAS_DOMAIN}"                    # Domain - provide the domain.tld for this ELIAS installation.
+         SERVICE_2_DT: "${SERVICE_2_DT}"                    # SERVICE TO DOMAIN TLD - maps domain.tld to the appointed service, and requests certificate for it as well. So if service "web" is mapped, then domain.tld will point to the same "web" service. Use "-" for none. Use "elias" to refer to map elias.domain.tld to domain.tld.
+         SERVICE_2_W3: "${SERVICE_2_W3}"                    # SERVICE TO www. ELIAS DOMAIN - maps 'www.domain.tld to the appointed service, and requests certificate for it as well. So if service "web" is mapped, then web.elias.domain.tld will point to the same "web" service. Use "-" for none. Use "elias" to refer to map elias.domain.tld to www.domain.tld.
+         SERVICE_2_SD: "${SERVICE_2_SD}"                    # SERVICE TO sub DOMAIN. Can be "ON" or "OFF". When "ON", enables access to services omitting the ELIAS sub-domain name-space i.e. enables access to services via [service].domain.tld in addition to service.elias.domain.tld.
+         TLSCERT_MAIL: "${TLSCERT_MAIL}"                    # Provide a valid email address to fetch a Let's Encrypt certificate. Use "-" when Let's Encrypt certificate should not be acquired. TLSCERT_MAIL is ignored when HTTPS is disabled.

@@ -1,0 +1,83 @@
+﻿@page "/weather"
+@rendermode InteractiveServer
+
+@using Data_Access;
+@using Data_Access.Models
+@using ELIAS_Core.Data;
+@using Microsoft.AspNetCore.Authorization
+@using MassTransit;
+@using Data_Messages;
+
+@attribute [StreamRendering]
+@attribute [Authorize]
+
+@inject ITemperatureData   tmperature_data;
+@inject IPublishEndpoint   publish_endpoint;
+
+<PageTitle>Weather</PageTitle>
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+<button class="btn btn-primary" @onclick="LoadForecast">Load Forecast</button>
+
+@if( forecasts is null && loadLocation == "" )
+{
+   <p><em>Click the button to load the forecast</em></p>
+}
+else if( forecasts is null )
+{
+   <p><em>Loading...</em></p>
+}
+else
+{
+   <div class="h3 @isCacheData">@loadLocation</div>
+
+   <table class="table">
+      <thead>
+         <tr>
+            <th>Date</th>
+            <th>Temp. (C)</th>
+            <th>Temp. (F)</th>
+            <th>Summary</th>
+         </tr>
+      </thead>
+      <tbody>
+         @foreach( var forecast in forecasts )
+         {
+            <tr>
+               <td>@forecast.date.ToShortDateString()</td>
+               <td>@forecast.temp_c</td>
+               <td>@forecast.temp_f</td>
+               <td>@forecast.summary</td>
+            </tr>
+         }
+      </tbody>
+   </table>
+}
+
+@code {
+   private IEnumerable< TempModel > forecasts = new List< TempModel >();
+   private string loadLocation = "";
+   private string isCacheData = "";
+
+   private async Task LoadForecast()
+   {
+      Tuple< IEnumerable< TempModel >, bool > var = await tmperature_data.GetTemps();
+      forecasts = var.Item1;
+
+      if( var.Item2 )
+      {
+         loadLocation = $"Loaded from API at {DateTime.Now}";
+         isCacheData = "";
+      }
+      else
+      {
+         loadLocation = $"Loaded from the cache at {DateTime.Now}";
+         isCacheData = "text-danger";
+      }
+
+      await publish_endpoint.Publish( new MessageTestForward { Id = new Guid(), SendTime_UTC = DateTime.UtcNow } /* , cancellation token */ );
+   }
+}

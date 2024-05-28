@@ -4,7 +4,7 @@
 #
 # Example
 # ./volume-backup.sh [container: mysqldb] [path in container: /var/lib/mysql] [archive filename: archive-04-2024]
-# ./volume_backup_container.sh elias_system_database /var/lib/mysql archive-21-04-2024
+# ./volume_backup_container.sh elias_driver___system_database /var/lib/mysql archive-21-04-2024
 
 CONTAINER_NAME=$1
 VOLUME_PATH=$2

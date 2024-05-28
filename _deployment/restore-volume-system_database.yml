@@ -3,22 +3,22 @@
 # - host_backup_dir   - REQUIRED - replace with the directory of the backup
 # - ZIP_ARCHIVE       - REQUIRED - replace with the filename of the backup
 # The source archive must be: [host_backup_dir]/[ZIP_ARCHIVE].tar.gz, i.e.
-# ASIS the source archive must be: ./host_backup_dir/elias_volume_system_database.tar.gz.
+# ASIS the source archive must be: ./host_backup_dir/elias_volume___system_database.tar.gz.
 # Note that the backup is gz, as on some systems bz2 may not work properly.
 #
 # CALL
 # docker compose -f restore-volume-system_database.yml run --rm go
 
 volumes:
-  elias_volume_system_database:
+  elias_volume___system_database:
     external: true
 
 services:
   go:
     image: alpine    
     environment:
-      - ZIP_ARCHIVE=elias_volume_system_database.tar.gz
+      - ZIP_ARCHIVE=elias_volume___system_database.tar.gz
     volumes:
       - ./host_backup_dir:/container_backup_dir
-      - elias_volume_system_database:/volume
+      - elias_volume___system_database:/volume
     command: sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar -C /volume/ -xvzf /container_backup_dir/$${ZIP_ARCHIVE}"

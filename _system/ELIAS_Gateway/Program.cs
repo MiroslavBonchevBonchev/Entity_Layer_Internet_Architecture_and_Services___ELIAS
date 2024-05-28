@@ -31,7 +31,7 @@ builder.Services.AddReverseProxy()
       context.AddXForwardedPrefix();
       context.AddXForwardedProto();
    } )
-   .LoadFromMemory( Proxy_Config.Get_routes(), Proxy_Config.Get_clusters() );
+   .LoadFromMemory( Proxy_Config.Get_routes( null ), Proxy_Config.Get_clusters() );
 
 
 
@@ -43,7 +43,7 @@ if( !string.IsNullOrWhiteSpace( lets_encrypt_certificate_email ) )
    builder.Services.AddLettuceEncrypt( context => {
       context.AcceptTermsOfService = true;
       context.EmailAddress = lets_encrypt_certificate_email;
-      context.DomainNames  = [.. Proxy_Config.Get_domains_for_TLS()]; }
+      context.DomainNames  = [.. Proxy_Config.Get_domains_for_TLS( null )]; }
 
       // 1. In order for the PersistDataToDirectory( ... ) to work, the Dockerfile requires creating of a /home/app/https_certificates directory:
       //    FROM base AS final                      # - already there
@@ -72,7 +72,7 @@ var app = builder.Build();
 
 if( app.Environment.IsDevelopment() )
 {
-   foreach( var route in Proxy_Config.Get_routes() )
+   foreach( var route in Proxy_Config.Get_routes( null ) )
    {
       Console.WriteLine( $"RouteId: {route.RouteId} - ClusterId : {route.ClusterId} - Addresses: {string.Join( ", ", null != route.Match && null != route.Match.Hosts ? route.Match.Hosts : new List< string >() )}"  );
    }
@@ -82,7 +82,7 @@ if( app.Environment.IsDevelopment() )
       Console.WriteLine( $"ClusterId : {cluster.ClusterId} - Addresses: {(null != cluster.Destinations && 0 != cluster.Destinations.Count ? cluster.Destinations[cluster.Destinations.Keys.First()].Address : "") }" );
    }
 
-   foreach( var domain in Proxy_Config.Get_domains_for_TLS() )
+   foreach( var domain in Proxy_Config.Get_domains_for_TLS( null ) )
    {
       Console.WriteLine( $"TLS Domain : {domain}"  );
    }

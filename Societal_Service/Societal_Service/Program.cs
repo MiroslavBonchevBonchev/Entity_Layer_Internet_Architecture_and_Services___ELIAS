@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption.ConfigurationModel;
 using Microsoft.AspNetCore.DataProtection.AuthenticatedEncryption;
 using Microsoft.AspNetCore.DataProtection;
-using Settings;
 using Societal_Service.Components;
+using Settings;
+
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -39,7 +41,7 @@ if( !app.Environment.IsDevelopment() )
 
 
 // This service works with HTTP behind reverse proxy, MBB.
-if( Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Required, Launch_settings.Protocol_permission.Banned, true ) )
+if( Settings.Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Required, Launch_settings.Protocol_permission.Banned, true ) )
 {
    app.UseHttpsRedirection();
 }

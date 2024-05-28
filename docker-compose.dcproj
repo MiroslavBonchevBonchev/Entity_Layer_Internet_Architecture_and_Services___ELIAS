@@ -7,7 +7,7 @@
     <ProjectGuid>9c322aa4-fa8e-4701-aa94-86f692207150</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}</DockerServiceUrl>
-    <DockerServiceName>query_service</DockerServiceName>
+    <DockerServiceName>elias_core</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include=".env" />

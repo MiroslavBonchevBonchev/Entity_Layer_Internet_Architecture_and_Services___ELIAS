@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Query_Service", "Query_Service\Query_Service\Query_Service.csproj", "{173092B3-4CF4-4500-BB06-115A32BE44DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ELIAS_Core", "_system\ELIAS_Core\ELIAS_Core\ELIAS_Core.csproj", "{173092B3-4CF4-4500-BB06-115A32BE44DD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Query_Service.Client", "Query_Service\Query_Service.Client\Query_Service.Client.csproj", "{159E04E8-DE5C-45E2-AF79-7326D34C8588}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ELIAS_Core.Client", "_system\ELIAS_Core\ELIAS_Core.Client\ELIAS_Core.Client.csproj", "{159E04E8-DE5C-45E2-AF79-7326D34C8588}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Query_Service", "Query_Service", "{ABB551C3-9559-47CA-8010-A03EE6EC072E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ELIAS_Core", "ELIAS_Core", "{ABB551C3-9559-47CA-8010-A03EE6EC072E}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{9C322AA4-FA8E-4701-AA94-86F692207150}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Access", "Data_Access\Data_Access.csproj", "{8C019262-9329-422E-AF4D-923B2B2D5E03}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Access", "_system\Data_Access\Data_Access.csproj", "{8C019262-9329-422E-AF4D-923B2B2D5E03}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_support_files", "_support_files", "{F4220D66-70B4-496E-9EB4-498ED27D23CD}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,7 +20,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_support_files", "_support_
 		_support_files\mysql_test_data_database-tt-app.sql = _support_files\mysql_test_data_database-tt-app.sql
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Messages", "Data_Messages\Data_Messages.csproj", "{31FE26FA-137D-4942-B6BD-9BEAFE214224}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data_Messages", "_system\Data_Messages\Data_Messages.csproj", "{31FE26FA-137D-4942-B6BD-9BEAFE214224}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Societal_Service", "Societal_Service", "{B12229FB-B531-4091-B7BC-982A06D3DDE7}"
 EndProject
@@ -37,7 +37,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_system", "_system", "{F392
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ELIAS_Gateway", "_system\ELIAS_Gateway\ELIAS_Gateway.csproj", "{8DBDF263-F7E1-4EB6-B939-45CBFE09274C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Settings", "Settings\Settings.csproj", "{CB8696B7-49B8-4D04-B215-1063892E4F62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Settings", "_system\Settings\Settings.csproj", "{CB8696B7-49B8-4D04-B215-1063892E4F62}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "elias_volume", "elias_volume", "{65F718DF-769D-467F-BEA9-77C4D9F08E62}"
 	ProjectSection(SolutionItems) = preProject
@@ -55,19 +55,19 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "base scripts", "base script
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_deployment", "_deployment", "{0D969CAB-503C-442D-BE3F-26A2B050D09F}"
 	ProjectSection(SolutionItems) = preProject
-		_deployment\backup-volume-service_query.yml = _deployment\backup-volume-service_query.yml
 		_deployment\backup-volume-service_societal.yml = _deployment\backup-volume-service_societal.yml
+		_deployment\backup-volume-system_core.yml = _deployment\backup-volume-system_core.yml
 		_deployment\backup-volume-system_database.yml = _deployment\backup-volume-system_database.yml
 		_deployment\backup-volume-system_gateway.yml = _deployment\backup-volume-system_gateway.yml
-		_deployment\restore-volume-service_query.yml = _deployment\restore-volume-service_query.yml
 		_deployment\restore-volume-service_societal.yml = _deployment\restore-volume-service_societal.yml
+		_deployment\restore-volume-system_core.yml = _deployment\restore-volume-system_core.yml
 		_deployment\restore-volume-system_database.yml = _deployment\restore-volume-system_database.yml
 		_deployment\restore-volume-system_gateway.yml = _deployment\restore-volume-system_gateway.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "host_backup_dir", "host_backup_dir", "{A9B551E0-08CA-40E1-825B-C0932E54B2A6}"
 	ProjectSection(SolutionItems) = preProject
-		_deployment\host_backup_dir\elias_volume_system_database.tar.gz = _deployment\host_backup_dir\elias_volume_system_database.tar.gz
+		_deployment\host_backup_dir\elias_volume___system_database.tar.gz = _deployment\host_backup_dir\elias_volume___system_database.tar.gz
 	EndProjectSection
 EndProject
 Global
@@ -115,8 +115,12 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{173092B3-4CF4-4500-BB06-115A32BE44DD} = {ABB551C3-9559-47CA-8010-A03EE6EC072E}
 		{159E04E8-DE5C-45E2-AF79-7326D34C8588} = {ABB551C3-9559-47CA-8010-A03EE6EC072E}
+		{ABB551C3-9559-47CA-8010-A03EE6EC072E} = {F3921A5B-FC36-450F-8EB6-2B42F76B7273}
+		{8C019262-9329-422E-AF4D-923B2B2D5E03} = {F3921A5B-FC36-450F-8EB6-2B42F76B7273}
+		{31FE26FA-137D-4942-B6BD-9BEAFE214224} = {F3921A5B-FC36-450F-8EB6-2B42F76B7273}
 		{8FEDB1DE-FE19-4C7C-B5CC-8435E4776FE7} = {B12229FB-B531-4091-B7BC-982A06D3DDE7}
 		{8DBDF263-F7E1-4EB6-B939-45CBFE09274C} = {F3921A5B-FC36-450F-8EB6-2B42F76B7273}
+		{CB8696B7-49B8-4D04-B215-1063892E4F62} = {F3921A5B-FC36-450F-8EB6-2B42F76B7273}
 		{65F718DF-769D-467F-BEA9-77C4D9F08E62} = {F4220D66-70B4-496E-9EB4-498ED27D23CD}
 		{1A308997-F1EC-427B-A1BD-DE6FCBA5F09C} = {65F718DF-769D-467F-BEA9-77C4D9F08E62}
 		{A9B551E0-08CA-40E1-825B-C0932E54B2A6} = {0D969CAB-503C-442D-BE3F-26A2B050D09F}

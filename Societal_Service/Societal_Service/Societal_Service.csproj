@@ -14,7 +14,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Settings\Settings.csproj" />
+    <ProjectReference Include="..\..\_system\Settings\Settings.csproj" />
   </ItemGroup>
-
 </Project>

@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option csharp_namespace = "ELIAS_Core.Protos";
+
+
+
+// The greeting service definition.
+service test_greeter {
+  // Sends a greeting
+  rpc SayHello (test_HelloRequest) returns (test_HelloReply);
+}
+
+// The request message containing the user's name.
+message test_HelloRequest {
+  string name = 1;
+}
+
+// The response message containing the greetings.
+message test_HelloReply {
+  string message = 1;
+}

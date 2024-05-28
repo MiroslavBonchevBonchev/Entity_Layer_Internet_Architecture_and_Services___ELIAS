@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 using Microsoft.Extensions.Primitives;
 using Org.BouncyCastle.Crypto.Prng;
 using Settings;
@@ -13,7 +15,6 @@ namespace ELIAS_Gateway.Configuration
    public sealed class ELIAS_Service( string _name, ushort _port ) : IEqualityComparer< ELIAS_Service >
    {
       public string Name { get; init; } = _name;
-      public string Host { get; init; } = $"elias_service_{_name}";
       public ushort Port { get; init; } = _port;
 
       public bool Equals( ELIAS_Service? x, ELIAS_Service? y )
@@ -34,11 +35,11 @@ namespace ELIAS_Gateway.Configuration
 
    public class Proxy_Config
    {
-      private readonly static string query = "query";
-      private readonly static ushort query_service_default_port = 8080;
+      private readonly static string elias_core_name = "elias";
+      private readonly static ushort elias_core_default_port = 8080;
 
       private readonly static string ELIAS_DOMAIN = "ELIAS_DOMAIN";
-      private readonly static string SERVICE_2_ED = "SERVICE_2_ED";
+      private readonly static string SERVICE_2_DT = "SERVICE_2_DT";
       private readonly static string SERVICE_2_W3 = "SERVICE_2_W3";
       private readonly static string SERVICE_2_SD = "SERVICE_2_SD";
       private readonly static string TLSCERT_MAIL = "TLSCERT_MAIL";
@@ -55,10 +56,10 @@ namespace ELIAS_Gateway.Configuration
       // ==================
       // "ReverseProxy": {
       //    "Routes": {
-      //       "route_query": {
-      //          "ClusterId": "cluster_query",
+      //       "route_elias": {
+      //          "ClusterId": "cluster_elias",
       //          "Match": {
-      //             "Hosts": [ "query.elias.m0.com", "elias.m0.com" ],
+      //             "Hosts": [ "elias.m0.com" ],
       //             "Path": "{**catch-all}"
       //          }
       //       },
@@ -71,12 +72,12 @@ namespace ELIAS_Gateway.Configuration
       //       }
       //    },
       //    "Clusters": {
-      //       "cluster_query": { "Destinations": { "destination1": { "Address": "http://elias_service_query:[port]" } } },
-      //       "cluster_societal": { "Destinations": { "destination1": { "Address": "http://elias_service_societal:[port]" } } }
+      //       "cluster_elias": { "Destinations": { "destination1": { "Address": "http://elias_system___core:[port]" } } },
+      //       "cluster_societal": { "Destinations": { "destination1": { "Address": "http://elias_service___societal:[port]" } } }
       //    }
       // }
 
-      public static IReadOnlyList< RouteConfig > Get_routes()
+      public static IReadOnlyList< RouteConfig > Get_routes( string? elias_namespace_separator )
       {
          // route_[service]: { "ClusterId": "cluster_[service]", "Match": { "Hosts": [ "[service].elias.domain" ], "Path": "{**catch-all}" } }
          var routes = new List< RouteConfig >();
@@ -95,20 +96,20 @@ namespace ELIAS_Gateway.Configuration
          bool service_to_sub_domain = Get_service_to_sub_domain_status();
 
          var services = Get_services();
-         Get_the_domain_mapped_service( services, SERVICE_2_ED, out string ed_mapped_service );
+         Get_the_domain_mapped_service( services, SERVICE_2_DT, out string dt_mapped_service );
          Get_the_domain_mapped_service( services, SERVICE_2_W3, out string w3_mapped_service );
 
 
          foreach( var service in services )
          {
-            var addresses = new List< string >( [ $"{service.Name}.elias.{domain}" ] );
+            var addresses = new List< string >( [ Make_default_elias_service_uri( service, elias_namespace_separator, domain ) ] );
 
             if( service_to_sub_domain)
             {
-               Add_direct_sub_domain_access( service, domain, ref addresses );
+               Add_direct_sub_domain_access( service, domain, elias_namespace_separator, ref addresses );
             }
 
-            if( 0 == string.Compare( service.Name, ed_mapped_service, true ) )
+            if( 0 == string.Compare( service.Name, dt_mapped_service, true ) )
             {
                addresses.Add( domain );
             }
@@ -135,7 +136,7 @@ namespace ELIAS_Gateway.Configuration
 
       public static IReadOnlyList< ClusterConfig > Get_clusters()
       {
-         // cluster_[service]: { "Destinations": { "destination1": { "Address": "http://elias_service_query:[port]" } }
+         // cluster_[service]: { "Destinations": { "destination1": { "Address": "http://elias_system___core:[port]" } }
          var clusters = new List< ClusterConfig >();
 
          foreach( var service in Get_services() )
@@ -145,7 +146,7 @@ namespace ELIAS_Gateway.Configuration
                ClusterId = $"cluster_{service.Name}",
                Destinations = new Dictionary< string, DestinationConfig >
                {
-                  { "destination1", new DestinationConfig { Address = $"http://{service.Host}:{service.Port}" } }
+                  { "destination1", new DestinationConfig { Address = $"http://{Make_elias_network_service_address( service )}:{service.Port}" } }
                }
             } );
          }
@@ -153,7 +154,7 @@ namespace ELIAS_Gateway.Configuration
          return clusters;
       }
 
-      public static IReadOnlyList< string > Get_domains_for_TLS()
+      public static IReadOnlyList< string > Get_domains_for_TLS( string? elias_namespace_separator )
       {
          // Get the domain.
          string? domain = Environment.GetEnvironmentVariable( ELIAS_DOMAIN );
@@ -163,13 +164,11 @@ namespace ELIAS_Gateway.Configuration
             throw new Exception( string.Format( error_2, ELIAS_DOMAIN ) );
          }
 
-
          var domains = new List< string >();
          var services = Get_services();
          
-         
          // See if the domain is mapped to a service.
-         if( Get_the_domain_mapped_service( services, SERVICE_2_ED, out _ ) )
+         if( Get_the_domain_mapped_service( services, SERVICE_2_DT, out _ ) )
          {
             domains.Add( domain );
          }
@@ -183,26 +182,67 @@ namespace ELIAS_Gateway.Configuration
 
          foreach( var service in services )
          {
-            domains.Add( $"{service.Name}.elias.{domain}" );
+            domains.Add( Make_default_elias_service_uri( service, domain, elias_namespace_separator ) );
 
-            if( service_to_sub_domain)
+            if( service_to_sub_domain )
             {
-               Add_direct_sub_domain_access( service, domain, ref domains );
+               Add_direct_sub_domain_access( service, domain, elias_namespace_separator, ref domains );
             }
          }
 
          return domains;
       }
 
-      public static void Add_direct_sub_domain_access( ELIAS_Service service, string domain, ref List< string > addresses )
+      private static string Make_elias_network_service_address( ELIAS_Service service )
       {
-         if( 0 == string.Compare( service.Name, query, true ) )
+         if( 0 == string.Compare( service.Name, elias_core_name, true ) )
          {
-            addresses.Add( $"elias.{domain}" );
+            return "elias_system___core";
+         }
+
+         return $"elias_service___{service.Name}";
+      }
+
+      private static string Make_default_elias_service_uri( ELIAS_Service service, string? elias_namespace_separator, string domain )
+      {
+         var uri = new StringBuilder();
+         
+         if( 0 != string.Compare( service.Name, elias_core_name, true ) )
+         {
+            // Add user services as sub domains. The ELIAS CORE is accessed as elias.domain.tld, i.e. not allowing elias.elias.domain.tld.
+            uri.Append( service.Name );
+            uri.Append( '.' );
+         }
+
+         uri.Append( "elias." );
+
+         if( !string.IsNullOrWhiteSpace( elias_namespace_separator ) )
+         {
+            uri.Append( elias_namespace_separator );
+            uri.Append( '.' );
+         }
+
+         uri.Append( domain );
+
+         return uri.ToString();
+      }
+
+      public static void Add_direct_sub_domain_access( ELIAS_Service service, string domain, string? elias_namespace_separator, ref List< string > addresses )
+      {
+         // Access to the core happens only through elias.domain.tld, and potentially through elias.[elias_namespace_separator].domain.tld.
+         // Thus, access to it is already through ONE level sub-domain. The is no access to the core through core.elias.domain.tld.
+         if( 0 == string.Compare( service.Name, elias_core_name, true ) )
+         {
+            return;
+         }
+
+         if( string.IsNullOrWhiteSpace( elias_namespace_separator ) )
+         {
+            addresses.Add( $"{service.Name}.{domain}" );
          }
          else
          {
-            addresses.Add( $"{service.Name}.{domain}" );
+            addresses.Add( $"{service.Name}.{elias_namespace_separator}.{domain}" );
          }
       }
 
@@ -226,13 +266,6 @@ namespace ELIAS_Gateway.Configuration
          {
             if( 0 == string.Compare( service.Name, mapped_service, true ) )
             {
-               // A service is mapped to the domain.
-               if( 0 == string.Compare( mapped_service, query, true ) )
-               {
-                  // The query service cannot be mapped to the domain.
-                  throw new Exception( string.Format( error_3, service_mapping_name, mapped_service ) );
-               }
-
                return true;
             }
          }
@@ -266,7 +299,7 @@ namespace ELIAS_Gateway.Configuration
 
 
          var services = new List< ELIAS_Service >();
-         bool has_query = false;
+         bool has_core = false;
 
          foreach( var service_data in service_raw.Split( ',', StringSplitOptions.TrimEntries ) )
          {
@@ -297,16 +330,16 @@ namespace ELIAS_Gateway.Configuration
             }
 
 
-            has_query |= 0 == string.Compare( service[0], query, true );
+            has_core |= 0 == string.Compare( service[0], elias_core_name, true );
 
 
             services.Add( new ELIAS_Service( service[0], port ));
          }
 
 
-         if( !has_query )
+         if( !has_core )
          {
-            services.Add( new ELIAS_Service( query, query_service_default_port ));
+            services.Add( new ELIAS_Service( elias_core_name, elias_core_default_port ));
          }
 
 
@@ -385,7 +418,6 @@ namespace ELIAS_Gateway.Configuration
 
          throw new Exception( string.Format( error_5, TLSCERT_MAIL ) );
       }
-
 
       public static bool Force_HTTPS_on_ELIAS_gateway()
       {
