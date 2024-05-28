@@ -7,11 +7,11 @@ WORKDIR /app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["ELIAS_Core/ELIAS_Core/ELIAS_Core.csproj", "ELIAS_Core/ELIAS_Core/"]
-COPY ["ELIAS_Core/ELIAS_Core.Client/ELIAS_Core.Client.csproj", "ELIAS_Core/ELIAS_Core.Client/"]
-RUN dotnet restore "./ELIAS_Core/ELIAS_Core/ELIAS_Core.csproj"
+COPY ["_system/ELIAS_Core/ELIAS_Core/ELIAS_Core.csproj", "_system/ELIAS_Core/ELIAS_Core/"]
+COPY ["_system/ELIAS_Core/ELIAS_Core.Client/ELIAS_Core.Client.csproj", "_system/ELIAS_Core/ELIAS_Core.Client/"]
+RUN dotnet restore "./_system/ELIAS_Core/ELIAS_Core/ELIAS_Core.csproj"
 COPY . .
-WORKDIR "/src/ELIAS_Core/ELIAS_Core"
+WORKDIR "/src/_system/ELIAS_Core/ELIAS_Core"
 RUN dotnet build "./ELIAS_Core.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 FROM build AS publish

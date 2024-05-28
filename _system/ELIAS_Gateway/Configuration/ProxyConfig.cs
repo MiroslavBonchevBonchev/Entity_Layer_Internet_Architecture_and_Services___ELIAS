@@ -106,7 +106,7 @@ namespace ELIAS_Gateway.Configuration
 
             if( service_to_sub_domain)
             {
-               Add_direct_sub_domain_access( service, domain, elias_namespace_separator, ref addresses );
+               Add_direct_sub_domain_access( service, elias_namespace_separator, domain, ref addresses );
             }
 
             if( 0 == string.Compare( service.Name, dt_mapped_service, true ) )
@@ -182,11 +182,11 @@ namespace ELIAS_Gateway.Configuration
 
          foreach( var service in services )
          {
-            domains.Add( Make_default_elias_service_uri( service, domain, elias_namespace_separator ) );
+            domains.Add( Make_default_elias_service_uri( service, elias_namespace_separator, domain ) );
 
             if( service_to_sub_domain )
             {
-               Add_direct_sub_domain_access( service, domain, elias_namespace_separator, ref domains );
+               Add_direct_sub_domain_access( service, elias_namespace_separator, domain, ref domains );
             }
          }
 
@@ -227,7 +227,7 @@ namespace ELIAS_Gateway.Configuration
          return uri.ToString();
       }
 
-      public static void Add_direct_sub_domain_access( ELIAS_Service service, string domain, string? elias_namespace_separator, ref List< string > addresses )
+      public static void Add_direct_sub_domain_access( ELIAS_Service service, string? elias_namespace_separator, string domain, ref List< string > addresses )
       {
          // Access to the core happens only through elias.domain.tld, and potentially through elias.[elias_namespace_separator].domain.tld.
          // Thus, access to it is already through ONE level sub-domain. The is no access to the core through core.elias.domain.tld.
@@ -236,14 +236,14 @@ namespace ELIAS_Gateway.Configuration
             return;
          }
 
-         if( string.IsNullOrWhiteSpace( elias_namespace_separator ) )
-         {
-            addresses.Add( $"{service.Name}.{domain}" );
-         }
-         else
+         if( !string.IsNullOrWhiteSpace( elias_namespace_separator ) )
          {
             addresses.Add( $"{service.Name}.{elias_namespace_separator}.{domain}" );
+
+            return;
          }
+
+         addresses.Add( $"{service.Name}.{domain}" );
       }
 
       private static bool Get_the_domain_mapped_service( HashSet< ELIAS_Service > services, string service_mapping_name, out string mapped_service )
