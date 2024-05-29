@@ -52,7 +52,7 @@ namespace ELIAS_Gateway.Configuration
       private readonly static string error_3 = "Invalid {0} environment variable. The service name {1} requested to map is unknown or cannot be mapped.";
       private readonly static string error_4 = "Invalid {0} environment variable. The parameter can take values ON or OFF. When ON, services can be accessed as [service].domain.tld in addition to the standard [service].elias.domain.tld.";
       private readonly static string error_5 = "Invalid {0} environment variable. A valid email address is expected, or '-' when Let's Encrypt certificate is not required.";
-      private readonly static string error_6 = "Invalid {0} environment variable. A valid redirection type one of 'OFF', 'DT_2_W3-PERMANENT', 'DT_2_W3-TEMPORARY', 'W3_2_DT-PERMANENT', 'W3_2_DT-TEMPORARY' is required.";
+      private readonly static string error_6 = "Invalid {0} environment variable. A valid redirection type one of 'OFF', 'D2W-PERMANENT', 'D2W-TEMPORARY', 'W2D-PERMANENT', 'W2D-TEMPORARY' is required.";
 
       // YARP Configuration
       // ==================
@@ -439,10 +439,10 @@ namespace ELIAS_Gateway.Configuration
       {
          switch( (Environment.GetEnvironmentVariable( REDIRECT_W2D ) ?? "").Trim().ToUpper() )
          {
-         case "W3_2_DT-PERMANENT": return Redirect_Domain_2_W3.w3_to_domain_permanent;
-         case "W3_2_DT-TEMPORARY": return Redirect_Domain_2_W3.w3_to_domain_temporary;
-         case "DT_2_W3-PERMANENT": return Redirect_Domain_2_W3.domain_to_w3_permanent;
-         case "DT_2_W3-TEMPORARY": return Redirect_Domain_2_W3.domain_to_w3_temporary;
+         case "W2D-PERMANENT": return Redirect_Domain_2_W3.w3_to_domain_permanent;
+         case "W2D-TEMPORARY": return Redirect_Domain_2_W3.w3_to_domain_temporary;
+         case "D2W-PERMANENT": return Redirect_Domain_2_W3.domain_to_w3_permanent;
+         case "D2W-TEMPORARY": return Redirect_Domain_2_W3.domain_to_w3_temporary;
          case "OFF":               return Redirect_Domain_2_W3.OFF;
          }
 
