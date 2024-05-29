@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Settings;
 using Yarp.ReverseProxy.Transforms;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Rewrite;
 
 
 
@@ -97,6 +98,28 @@ if( app.Environment.IsDevelopment() )
 if( Proxy_Config.Force_HTTPS_on_ELIAS_gateway() )
 {
    app.UseHttpsRedirection();
+}
+
+
+
+// Set the domain to w3 redirection type, if any, MBB.
+switch( Proxy_Config.Get_domain_w3_redirection_type() )
+{
+case Proxy_Config.Redirect_Domain_2_W3.w3_to_domain_permanent:
+   app.UseRewriter( new RewriteOptions().AddRedirectToNonWwwPermanent() );
+   break;
+
+case Proxy_Config.Redirect_Domain_2_W3.w3_to_domain_temporary:
+   app.UseRewriter( new RewriteOptions().AddRedirectToNonWww() );
+   break;
+
+case Proxy_Config.Redirect_Domain_2_W3.domain_to_w3_permanent:
+   app.UseRewriter( new RewriteOptions().AddRedirectToWwwPermanent() );
+   break;
+
+case Proxy_Config.Redirect_Domain_2_W3.domain_to_w3_temporary:
+   app.UseRewriter( new RewriteOptions().AddRedirectToWww() );
+   break;
 }
 
 

@@ -42,6 +42,7 @@ namespace ELIAS_Gateway.Configuration
       private readonly static string SERVICE_2_DT = "SERVICE_2_DT";
       private readonly static string SERVICE_2_W3 = "SERVICE_2_W3";
       private readonly static string SERVICE_2_SD = "SERVICE_2_SD";
+      private readonly static string REDIRECT_W2D = "REDIRECT_W2D";
       private readonly static string TLSCERT_MAIL = "TLSCERT_MAIL";
       private readonly static string ELIAS_SERVICES = "ELIAS_SERVICES";
       private readonly static string GATEWAY_IN_HTTPS_PORT = "ASPNETCORE_HTTPS_PORTS";
@@ -51,6 +52,7 @@ namespace ELIAS_Gateway.Configuration
       private readonly static string error_3 = "Invalid {0} environment variable. The service name {1} requested to map is unknown or cannot be mapped.";
       private readonly static string error_4 = "Invalid {0} environment variable. The parameter can take values ON or OFF. When ON, services can be accessed as [service].domain.tld in addition to the standard [service].elias.domain.tld.";
       private readonly static string error_5 = "Invalid {0} environment variable. A valid email address is expected, or '-' when Let's Encrypt certificate is not required.";
+      private readonly static string error_6 = "Invalid {0} environment variable. A valid redirection type one of 'OFF', 'DT_2_W3-PERMANENT', 'DT_2_W3-TEMPORARY', 'W3_2_DT-PERMANENT', 'W3_2_DT-TEMPORARY' is required.";
 
       // YARP Configuration
       // ==================
@@ -422,6 +424,29 @@ namespace ELIAS_Gateway.Configuration
       public static bool Force_HTTPS_on_ELIAS_gateway()
       {
          return Launch_settings.Force_HTTPS_on_ELIAS_service( Launch_settings.Protocol_permission.Allowed, Launch_settings.Protocol_permission.Allowed, false );
+      }
+
+      public enum Redirect_Domain_2_W3
+      {
+         w3_to_domain_permanent,
+         w3_to_domain_temporary,
+         domain_to_w3_permanent,
+         domain_to_w3_temporary,
+         OFF
+      }
+
+      public static Redirect_Domain_2_W3 Get_domain_w3_redirection_type()
+      {
+         switch( (Environment.GetEnvironmentVariable( REDIRECT_W2D ) ?? "").Trim().ToUpper() )
+         {
+         case "W3_2_DT-PERMANENT": return Redirect_Domain_2_W3.w3_to_domain_permanent;
+         case "W3_2_DT-TEMPORARY": return Redirect_Domain_2_W3.w3_to_domain_temporary;
+         case "DT_2_W3-PERMANENT": return Redirect_Domain_2_W3.domain_to_w3_permanent;
+         case "DT_2_W3-TEMPORARY": return Redirect_Domain_2_W3.domain_to_w3_temporary;
+         case "OFF":               return Redirect_Domain_2_W3.OFF;
+         }
+
+         throw new Exception( string.Format( error_6, REDIRECT_W2D ) );
       }
    }
 }
